@@ -62,7 +62,7 @@ python-dateutil
 python-Levenshtein
 pytz
 pytz-deprecation-shim
-pywin32==305.1
+pywin32
 PyYAML
 pyzmq
 requests

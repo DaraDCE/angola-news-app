@@ -27,7 +27,7 @@ col1, col2 = st.columns([3.3, 0.7], gap="medium")
 with col1:
     col1.write(f'## Notícias de Angola, Africa e o mundo ##')
 with col2:
-    image = Image.open(r"C:\Users\Hp\OneDrive\Desktop\rss_news_app\dce_logo_extrasmall_jpeg.jpg")
+    image = Image.open("https://raw.githubusercontent.com/DaraDCE/angola-news-app/master/dce_logo_extrasmall_jpeg.jpg")
     col2.image(image, use_column_width=True)
 
 # Widgets for searching by date range and keywords, displayed in column with app (as opposed to 'sidebar')

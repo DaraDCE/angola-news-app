@@ -22,8 +22,6 @@ fuzzywuzzy @ file:///home/conda/feedstock_root/build_artifacts/fuzzywuzzy_160570
 gitdb @ file:///home/conda/feedstock_root/build_artifacts/gitdb_1669279893622/work
 GitPython @ file:///home/conda/feedstock_root/build_artifacts/gitpython_1676637751542/work
 idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1663625384323/work
-importlib-metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1679167925176/work
-importlib-resources @ file:///home/conda/feedstock_root/build_artifacts/importlib_resources_1676919000169/work
 ipykernel @ file:///C:/b/abs_b4f07tbsyd/croot/ipykernel_1672767104060/work
 ipython @ file:///C:/b/abs_d3h279dv3h/croot/ipython_1676582236558/work
 ipywidgets @ file:///home/conda/feedstock_root/build_artifacts/ipywidgets_1679420322232/work

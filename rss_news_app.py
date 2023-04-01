@@ -42,9 +42,9 @@ col1, col2 = st.columns([3.3, 0.7], gap="medium")
 with col1:
     col1.write(f'## Notícias Angolanas ##')
 with col2:
-    #image = Image.open("dce_logo_extrasmall_jpeg.jpg")
-    #col2.image(image, use_column_width=True)
-    col2.write(f'# LOGO #') # placeholder for testing
+    image = Image.open("dce_logo_extrasmall_jpeg.jpg")
+    col2.image(image, use_column_width=True)
+    #col2.write(f'# LOGO #') # placeholder for testing
 
 # Widgets for searching by date range and keywords, displayed in column with app (as opposed to 'sidebar')
 keyword = st.text_input("Procurar palavra-chave", value='')
@@ -140,7 +140,7 @@ if filtered_articles:
         else:
             st.write(f"{articles_displayed} notícias exibidas.")
     else:
-        st.write("_Não foram encontradas mais notícias relacionadas às palavras-chave ou no período definido._")
+        st.write("_Não foram encontradas mais notícias relacionadas às palavras-chave ou a fonte._")
 
     if articles_displayed > 10:
         reset = st.button('Voltar')
@@ -148,4 +148,4 @@ if filtered_articles:
             articles_displayed = 10
             st.experimental_rerun()
 else:
-    st.write("_Não foram encontradas mais notícias relacionadas às palavras-chave ou no período definido._")
+    st.write("_Não foram encontradas mais notícias relacionadas às palavras-chave ou a fonte._")

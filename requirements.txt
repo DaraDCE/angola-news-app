@@ -2,7 +2,6 @@ altair
 asttokens
 attrs
 backcall
-beautifulsoup4
 blinker
 Bottleneck
 brotlipy
@@ -71,7 +70,6 @@ semver
 sgmllib3k
 six
 smmap
-soupsieve
 stack-data
 streamlit
 toml
@@ -90,40 +88,3 @@ widgetsnbextension
 win-inet-pton
 wincertstore==0.2
 zipp
-
-#open ai api dependencies
-#aiohttp # superseded by llama-index build
-aiosignal
-appdirs
-async-timeout
-cycler
-docker-pycreds
-et_xmlfile
-frozenlist
-joblib
-kiwisolver
-m2w64-gcc-libgfor~
-m2w64-gcc-libs
-m2w64-gcc-libs-co~
-m2w64-gmp
-m2w64-libwinpthre~
-matplotlib-base
-msys2-conda-epoch
-multidict
-openai
-openpyxl
-pandas-stubs
-pathtools
-plotly
-pyparsing
-scikit-learn
-scipy
-sentry-sdk
-setproctitle
-tenacity
-threadpoolctl
-tqdm
-types-pytz
-typing-extensions
-wandb
-yarl

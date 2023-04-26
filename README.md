@@ -1,23 +1,26 @@
-# angola-news-app
-Source and display articles from Angolan RSS news feeds, with optional date and keyword selector
+## Notícias Angolanas :flag-ao: :newspaper: :bulb:
 
-This Python code is an RSS news app built with the feedparser and streamlit packages to fetch and parse news articles from Angolan RSS feeds. The author is responding to the scarcity of Angolan news aggregators. The app allows the user to filter articles by date range and keyword search, and displays the results in reverse chronological order, with an option to load more articles up to a maximum of 20. The app was developed with the assitance of GPT-3.
+Fetch and display news articles from different news sources covering Angola. Filter articles by keyword or by news source.
 
-Prerequisites
-This code has the following Python package dependnecies:
+### Features
 
-feedparser
-streamlit
-datetime
-fuzzywuzzy
-unidecode
-re
-urllib.parse
-Pillow
+- Fetches articles from various Angolan news sources using RSS feeds
+- Filter articles by fuzzy keyword search
+- Filter articles by news source
+- Display 10 articles initially, while the "Carrega mais" button loads an additional 10 articles, up to a maximum of 20
 
-Usage
+### Usage
+
 To run the app, navigate to the directory containing the Python script and run the following command in your terminal:
 
 streamlit run rss_news_app.py
 
-Once the app is running, you can use the date range and keyword search widgets to filter the articles displayed. Clicking on the "Carrega mais" button will load an additional 10 articles, up to a maximum of 20. The app displays the title, source, publication date, and link to each article.
+### Dependencies
+
+This app uses the following packages:
+
+feedparser
+streamlit
+fuzzywuzzy
+unidecode
+Pillow

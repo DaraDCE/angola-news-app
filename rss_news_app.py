@@ -6,6 +6,7 @@ from unidecode import unidecode
 import re
 import urllib.parse
 from PIL import Image
+import concurrent.futures
 
 # List of RSS feeds
 rss_feeds = {
@@ -19,13 +20,15 @@ rss_feeds = {
     "Correio Angolense": "https://www.correioangolense.co.ao/feed/",
     "Maka Angola": "https://www.makaangola.org/feed/",
     "Camunda News": "https://camundanews.com/feed",
-    #"Valor Económico": "https://valoreconomico.co.ao/rss.php" # bad feed
+    #"Valor Económico": "https://valoreconomico.co.ao/rss.php", # bad feed
+    "Angola Online": "https://angola-online.net/noticias.xml",
+    "DW Africa": "https://rss.dw.com/rdf/rss-br-africa"
 }
 
 # List of allowed domains for RSS feeds
 allowed_domains = [
 #"club-k.net", # bad url
-#"opais.co.ao",
+#"opais.co.ao", # sign-in required
 "feeds.feedburner.com",
 "correiokianda.info",
 "noticiasdeangola.co.ao",
@@ -34,27 +37,20 @@ allowed_domains = [
 "www.correioangolense.co.ao",
 "www.makaangola.org",
 "camundanews.com",
-#"valoreconomico.co.ao"
+#"valoreconomico.co.ao", # bad feed
+"angola-online.net",
+"rss.dw.com"
 ]
 
-# Create two columns with different widths, for logo and app name
-col1, col2 = st.columns([3.3, 0.7], gap="medium")
-with col1:
-    col1.write(f'## Notícias Angolanas ##')
-with col2:
-    image = Image.open("dce_logo_extrasmall_jpeg.jpg")
-    col2.image(image, use_column_width=True)
-    #col2.write(f'# LOGO #') # placeholder for testing
+# Title
+st.title(f'Notícias Angolanas :flag-ao: :newspaper: :bulb:')
 
-# Widgets for searching by date range and keywords, displayed in column with app (as opposed to 'sidebar')
+# Widgets for searching by keyword and news source, displayed in column with app (as opposed to 'sidebar')
 keyword = st.text_input("Procurar palavra-chave", value='')
-news_source = st.selectbox("Selecione uma fonte", [''] + list(rss_feeds.keys()))
+news_source = st.selectbox("Selecione uma fonte", [''] + list(sorted(rss_feeds.keys())))
 
-# Fetch and parse the RSS feed
-filtered_articles = []
-
-# Validate and sanitize the URL for each RSS feed (security)
-for source, url in rss_feeds.items():
+# Define a function to validate, parse, sanitize, and fetch an RSS feed
+def parse_feed(source, url):
     try:
         # Validate the URL format
         if not re.match(r"^https?://", url):
@@ -75,47 +71,55 @@ for source, url in rss_feeds.items():
         
         feed = feedparser.parse(sanitized_url)
 
+        return source, feed
+
     except Exception as e:
         print(f"Houve um erro ao interpretar a fonte {source}: {e}")
-        continue
+        return None
 
-    if news_source and source != news_source:
-        continue
+# Create a thread pool for concurrent processing and extraction of rss feeds, including source and keyword filtering
+with concurrent.futures.ThreadPoolExecutor(max_workers=len(rss_feeds)) as executor:
+    # Submit the parsing of each feed to the pool
+    futures = {executor.submit(parse_feed, source, url): (source, url) for source, url in rss_feeds.items()}
+    
+    filtered_articles = []
 
-    feed = feedparser.parse(url)
-
-    if "bozo_exception" in feed:
-        #st.warning(f"Could not fetch news from {source} ({url}), please try again later.")
-        print(f"Could not fetch news from {source} ({url}), try again later.")
-        continue
-
-    for item in feed["entries"]:
-        
-        # Filter by keyword with fuzzy search
-        if keyword:
-            title_score = fuzz.token_set_ratio(unidecode(keyword.lower()), unidecode(item.title.lower()))
-            summary_score = fuzz.token_set_ratio(unidecode(keyword.lower()), unidecode(item.summary.lower()))
-            if title_score < 80 and summary_score < 80:
+    for future in concurrent.futures.as_completed(futures):
+        source, feed = futures[future]
+        result = future.result()
+        if result is not None:
+            source, feed = result
+            if news_source and source != news_source:
                 continue
+            if "bozo_exception" in feed:
+                #st.warning(f"Could not fetch news from {source} ({url}), please try again later.")
+                print(f"Não foi possível obter notícias de {source} ({url}), tente mais tarde.")
+                continue
+            for item in feed["entries"]:
+                # Filter by keyword with fuzzy search
+                if keyword:
+                    title_score = fuzz.token_set_ratio(unidecode(keyword.lower()), unidecode(item.title.lower()))
+                    summary_score = fuzz.token_set_ratio(unidecode(keyword.lower()), unidecode(item.summary.lower()))
+                    if title_score < 80 and summary_score < 80:
+                        continue
+                filtered_articles.append((source, item))
 
-        filtered_articles.append((source, item))
-
-# Define a function to convert the date string into a datetime object
+# Define a function to convert the date string into a datetime object and handle exceptions in rss item labels
 def get_date_published(item):
-    return datetime(*item.published_parsed[:6])
+    try:
+        return datetime(*item.published_parsed[:6])
+    except AttributeError:
+        return datetime(*item.updated_parsed[:6]) # specific to "rss.dw.com"
 
 # Sort the filtered news articles by date (with equal weighting of source in key)
 filtered_articles = sorted(filtered_articles, key=lambda x: (get_date_published(x[1]), x[0]), reverse=True)
-
-# Sort the filtered news articles by date
-#filtered_articles = sorted(filtered_articles, key=lambda x: datetime(*x[1].published_parsed[:6]), reverse=True)
 
 # Display the filtered news articles with buttons to increment upto max 20 and reset
 if filtered_articles:
     articles_displayed = 10
     for i, (source, item) in enumerate(filtered_articles[:articles_displayed]):
         st.write(f"## {item['title']}")
-        st.write(f"**Fonte:** {source},  " + f"**Publicado:** {item['published']}")
+        st.write(f"**Fonte:** {source},  " + f"**Publicado:** {item['published'] if 'published' in item else item['updated']}")
         #st.markdown(item["summary"]) # exclude markdown summary
         st.write(f"Leia mais: {item['link']}")
     
@@ -130,7 +134,7 @@ if filtered_articles:
             else:
                 for i, (source, item) in enumerate(filtered_articles[10:articles_displayed], start=10):
                     st.write(f"## {item['title']}")
-                    st.write(f"**Fonte:** {source},  " + f"**Publicado:** {item['published']}")
+                    st.write(f"**Fonte:** {source},  " + f"**Publicado:** {item['published'] if 'published' in item else item['updated']}")
                     #st.markdown(item["summary"]) # exclude markdown summary
                     st.write(f"Leia mais: {item['link']}")
 

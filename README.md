@@ -1,6 +1,6 @@
 ## Notícias Angolanas :flag-ao: :newspaper: :bulb:
 
-Fetch and display news articles from various Angolan news sources. Filter articles by keyword or by news source.
+Fetch and display news articles from different news sources covering Angola. Filter articles by keyword or by news source.
 
 ### Features
 

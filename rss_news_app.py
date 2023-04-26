@@ -42,14 +42,6 @@ allowed_domains = [
 "rss.dw.com"
 ]
 
-# Create two columns with different widths, for logo and app name
-#col1, col2 = st.columns([3.3, 0.7], gap="medium")
-#with col1:
-    #col1.write(f'## Notícias Angolanas :flag-ao: :newspaper: :bulb: ##')
-#with col2:
-    #image = Image.open("dce_logo_extrasmall_jpeg.jpg")
-    #col2.image(image, use_column_width=True)
-
 # Title
 st.title(f'Notícias Angolanas :flag-ao: :newspaper: :bulb:')
 
@@ -121,9 +113,6 @@ def get_date_published(item):
 
 # Sort the filtered news articles by date (with equal weighting of source in key)
 filtered_articles = sorted(filtered_articles, key=lambda x: (get_date_published(x[1]), x[0]), reverse=True)
-
-# Sort the filtered news articles by date
-#filtered_articles = sorted(filtered_articles, key=lambda x: datetime(*x[1].published_parsed[:6]), reverse=True)
 
 # Display the filtered news articles with buttons to increment upto max 20 and reset
 if filtered_articles:

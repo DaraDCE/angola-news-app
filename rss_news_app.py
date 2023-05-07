@@ -10,7 +10,7 @@ import concurrent.futures
 
 # List of RSS feeds
 rss_feeds = {
-    #"Club-K": "https://www.club-k.net/index.php?option=com_obrss&task=feed&id=2:rss-noticias-do-club-k&format=feed&lang=pt", # bad url
+    #"Club-K": "https://www.club-k.net/index.php?option=com_obrss&task=feed&id=2:rss-noticias-do-club-k&format=feed&lang=pt", # bad feed
     #"O País": "https://opais.co.ao/feed/", # sign-in required
     "Africa Intelligence": "http://feeds.feedburner.com/AfricaIntelligence",
     "Correio da Kianda": "https://correiokianda.info/feed/",
@@ -27,7 +27,7 @@ rss_feeds = {
 
 # List of allowed domains for RSS feeds
 allowed_domains = [
-#"club-k.net", # bad url
+#"www.club-k.net", # bad feed
 #"opais.co.ao", # sign-in required
 "feeds.feedburner.com",
 "correiokianda.info",
@@ -59,7 +59,7 @@ def parse_feed(source, url):
         # Parse the URL to check the domain
         parsed_url = urllib.parse.urlparse(url)
         if parsed_url.netloc not in allowed_domains:
-            raise ValueError("O domínio não é permitido")
+            raise ValueError(f"{source}: O domínio não é permitido")
 
         # Sanitize the URL parameters
         sanitized_url = urllib.parse.urlunparse(parsed_url._replace(query=""))
@@ -70,12 +70,15 @@ def parse_feed(source, url):
             sanitized_url = "https://" + parsed_url.netloc + parsed_url.path
         
         feed = feedparser.parse(sanitized_url)
-
+        
+        if "bozo_exception" in feed:
+            raise Exception(f"Erro ao obter feed de {url}: {feed.bozo_exception}")
+        
         return source, feed
 
     except Exception as e:
-        print(f"Houve um erro ao interpretar a fonte {source}: {e}")
-        return None
+        return None, f"{e}"
+
 
 # Create a thread pool for concurrent processing and extraction of rss feeds, including source and keyword filtering
 with concurrent.futures.ThreadPoolExecutor(max_workers=len(rss_feeds)) as executor:
@@ -87,13 +90,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=len(rss_feeds)) as execut
     for future in concurrent.futures.as_completed(futures):
         source, feed = futures[future]
         result = future.result()
-        if result is not None:
+        if result[0] is not None:
             source, feed = result
             if news_source and source != news_source:
-                continue
-            if "bozo_exception" in feed:
-                #st.warning(f"Could not fetch news from {source} ({url}), please try again later.")
-                print(f"Não foi possível obter notícias de {source} ({url}), tente mais tarde.")
                 continue
             for item in feed["entries"]:
                 # Filter by keyword with fuzzy search
@@ -103,6 +102,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=len(rss_feeds)) as execut
                     if title_score < 80 and summary_score < 80:
                         continue
                 filtered_articles.append((source, item))
+        else:
+            print(result[1])
+
 
 # Define a function to convert the date string into a datetime object and handle exceptions in rss item labels
 def get_date_published(item):

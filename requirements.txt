@@ -38,7 +38,7 @@ mdurl
 mkl-service==2.4.0
 nest-asyncio
 numexpr
-numpy
+numpy==1.26.4
 packaging
 pandas
 parso
